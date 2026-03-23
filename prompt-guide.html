@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrompttpmorP – Thư Viện Prompt AI</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080b14;
+      --surface: #0f1422;
+      --card: #141928;
+      --border: rgba(255, 255, 255, 0.07);
+      --accent1: #6c63ff;
+      --accent2: #00d4aa;
+      --accent3: #ff6b6b;
+      --accent4: #ffd93d;
+      --accent5: #ff8c42;
+      --accent6: #a78bfa;
+      --text: #e8eaf6;
+      --muted: #7b82a3;
+      --glow1: rgba(108, 99, 255, 0.15);
+      --glow2: rgba(0, 212, 170, 0.12);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ---- BACKGROUND ORBS ---- */
+    .orb-wrap {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.35;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+
+    .orb1 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent1);
+      top: -150px;
+      left: -100px;
+      animation-duration: 14s;
+    }
+
+    .orb2 {
+      width: 400px;
+      height: 400px;
+      background: var(--accent2);
+      bottom: -100px;
+      right: -80px;
+      animation-duration: 10s;
+      animation-delay: -4s;
+    }
+
+    .orb3 {
+      width: 300px;
+      height: 300px;
+      background: var(--accent3);
+      top: 40%;
+      left: 60%;
+      animation-duration: 16s;
+      animation-delay: -8s;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+
+      to {
+        transform: translate(30px, 20px) scale(1.08);
+      }
+    }
+
+    /* ---- LAYOUT ---- */
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ---- HEADER ---- */
+    header {
+      padding: 28px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .logo span {
+      color: var(--accent4);
+      -webkit-text-fill-color: var(--accent4);
+    }
+
+    .badge {
+      background: rgba(108, 99, 255, 0.15);
+      border: 1px solid rgba(108, 99, 255, 0.35);
+      color: var(--accent1);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ---- HERO ---- */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.1s forwards;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.2s forwards;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent4));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 200%;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 0%
+      }
+
+      100% {
+        background-position: 200%
+      }
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 560px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.3s forwards;
+    }
+
+    /* Search */
+    .search-wrap {
+      max-width: 560px;
+      margin: 0 auto;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.4s forwards;
+      position: relative;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 16px 56px 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      transition: border 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .search-wrap input:focus {
+      border-color: rgba(108, 99, 255, 0.5);
+      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.12);
+    }
+
+    .search-wrap input::placeholder {
+      color: var(--muted);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+      font-size: 1.1rem;
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 48px;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.5s forwards;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+
+    /* ---- TABS ---- */
+    .tabs-section {
+      padding: 12px 0 48px;
+    }
+
+    .tabs-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .tabs-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      padding: 10px 20px;
+      border-radius: 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .tab-btn.active {
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 16px rgba(108, 99, 255, 0.35);
+    }
+
+    .tab-btn .tab-icon {
+      font-size: 1rem;
+    }
+
+    /* ---- GRID ---- */
+    .grid {
+      display: none;
+      gap: 20px;
+    }
+
+    .grid.visible {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    }
+
+    /* ---- CARD ---- */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 24px 20px;
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s both;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      border-radius: inherit;
+      transition: opacity 0.3s;
+      background: radial-gradient(circle at 30% 30%, var(--c-glow, rgba(108, 99, 255, 0.12)), transparent 70%);
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .card-difficulty {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .diff-easy {
+      background: rgba(0, 212, 170, 0.12);
+      color: var(--accent2);
+    }
+
+    .diff-medium {
+      background: rgba(255, 217, 61, 0.12);
+      color: var(--accent4);
+    }
+
+    .diff-hard {
+      background: rgba(255, 107, 107, 0.12);
+      color: var(--accent3);
+    }
+
+    .card h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .card-desc {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .prompt-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      position: relative;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: #c5cae9;
+      max-height: 110px;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+      font-family: 'DM Sans', sans-serif;
+      z-index: 2;
+    }
+
+    .prompt-box.expanded {
+      max-height: 600px;
+    }
+
+    .prompt-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: linear-gradient(transparent, var(--bg));
+      border-radius: 0 0 10px 10px;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .prompt-box.expanded .prompt-fade {
+      opacity: 0;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .btn-copy,
+    .btn-expand {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-copy {
+      background: var(--c-accent, var(--accent1));
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(108, 99, 255, 0.25);
+    }
+
+    .btn-copy:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    .btn-copy.copied {
+      background: var(--accent2) !important;
+    }
+
+    .btn-expand {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-expand:hover {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .tip-tag {
+      margin-left: auto;
+      font-size: 0.7rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tip-tag::before {
+      content: '⚡';
+    }
+
+    /* ---- FOOTER ---- */
+    footer {
+      text-align: center;
+      padding: 60px 0 40px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+
+    footer strong {
+      color: var(--text);
+    }
+
+    /* ---- ANIMATIONS ---- */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 600px) {
+      .hero {
+        padding: 50px 0 40px;
+      }
+
+      .stats {
+        gap: 24px;
+      }
+
+      .grid.visible {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ---- EMPTY STATE ---- */
+    .empty {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty span {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    /* ---- MADE BY BADGE ---- */
+    .made-by {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 18px;
+      padding: 6px 16px 6px 10px;
+      border-radius: 40px;
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(0, 212, 170, 0.10));
+      border: 1px solid rgba(108, 99, 255, 0.28);
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.4px;
+      transition: all 0.25s;
+    }
+
+    .made-by:hover {
+      border-color: rgba(108, 99, 255, 0.55);
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 212, 170, 0.15));
+      color: var(--text);
+    }
+
+    .made-by .mb-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6c63ff, #00d4aa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: #fff;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .made-by strong {
+      color: var(--accent1);
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="orb-wrap">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <div class="wrap">
+
+    <header>
+      <div class="logo">Prompt<span>tpmorP</span></div>
+      <span class="badge">Thư viện miễn phí</span>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-tag">✦ Dành cho tất cả mọi người</div>
+      <h1>Prompt <br>cho mọi tác vụ AI</h1>
+      <p>Bộ sưu tập prompt chi tiết, được tối ưu để AI hiểu đúng ý bạn — không cần kinh nghiệm, dùng ngay.</p>
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Tìm kiếm prompt... (vd: viết email, vẽ logo)" />
+        <span class="search-icon">🔍</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num">60+</div>
+          <div class="stat-label">Prompt mẫu</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">6</div>
+          <div class="stat-label">Danh mục</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Miễn phí</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABS -->
+    <section class="tabs-section">
+      <div class="tabs-scroll" id="tabs"></div>
+    </section>
+
+    <!-- GRID -->
+    <div id="cardGrid" class="grid visible"></div>
+
+    <footer>
+      <strong>PromptMaster</strong> — Thư viện prompt AI tiếng Việt<br>
+      Dùng với Claude · ChatGPT · Gemini · Midjourney và mọi AI khác
+      <br>
+      <span class="made-by">
+        <span class="mb-dot">T</span>
+        Được tạo bởi <strong>Tiino</strong>
+      </span>
+    </footer>
+
+  </div>
+
+  <script>
+    // ============================================================
+    // DATA
+    // ============================================================
+    const CATEGORIES = [
+      {
+        id: 'all',
+        label: 'Tất cả',
+        icon: '✦',
+        color: '#6c63ff',
+        glow: 'rgba(108,99,255,0.18)',
+        gradient: 'linear-gradient(135deg,#6c63ff,#a78bfa)',
+      },
+      {
+        id: 'writing',
+        label: 'Viết lách & Nội dung',
+        icon: '✍️',
+        color: '#a78bfa',
+        glow: 'rgba(167,139,250,0.18)',
+        gradient: 'linear-gradient(135deg,#a78bfa,#818cf8)',
+      },
+      {
+        id: 'coding',
+        label: 'Lập trình & Code',
+        icon: '💻',
+        color: '#00d4aa',
+        glow: 'rgba(0,212,170,0.18)',
+        gradient: 'linear-gradient(135deg,#00d4aa,#06b6d4)',
+      },
+      {
+        id: 'image',
+        label: 'Hình ảnh & Thiết kế',
+        icon: '🎨',
+        color: '#ff6b6b',
+        glow: 'rgba(255,107,107,0.18)',
+        gradient: 'linear-gradient(135deg,#ff6b6b,#ff8c42)',
+      },
+      {
+        id: 'business',
+        label: 'Kinh doanh & Phân tích',
+        icon: '📊',
+        color: '#ffd93d',
+        glow: 'rgba(255,217,61,0.18)',
+        gradient: 'linear-gradient(135deg,#ffd93d,#f59e0b)',
+      },
+      {
+        id: 'video',
+        label: 'Tạo Video',
+        icon: '🎬',
+        color: '#ff8c42',
+        glow: 'rgba(255,140,66,0.18)',
+        gradient: 'linear-gradient(135deg,#ff8c42,#ef4444)',
+      },
+      {
+        id: 'learning',
+        label: 'Học tập & Nghiên cứu',
+        icon: '📚',
+        color: '#34d399',
+        glow: 'rgba(52,211,153,0.18)',
+        gradient: 'linear-gradient(135deg,#34d399,#10b981)',
+      },
+      {
+        id: 'itproject',
+        label: 'Dự án IT',
+        icon: '🚀',
+        color: '#38bdf8',
+        glow: 'rgba(56,189,248,0.18)',
+        gradient: 'linear-gradient(135deg,#38bdf8,#6366f1)',
+      },
+    ];
+
+    const PROMPTS = [
+      // ─── VIẾT LÁCH ───────────────────────────────────────────
+      {
+        cat: 'writing', diff: 'easy',
+        title: 'Viết bài đăng mạng xã hội',
+        desc: 'Tạo caption hấp dẫn, tự nhiên cho Facebook, Instagram hoặc TikTok.',
+        tip: 'Phù hợp Facebook, Insta',
+        prompt: `Hãy viết một bài đăng mạng xã hội cho nền tảng [Facebook/Instagram/TikTok] về chủ đề: [CHỦ ĐỀ].
+
+Yêu cầu:
+• Giọng văn: [tự nhiên/chuyên nghiệp/vui tươi/cảm xúc]
+• Độ dài: khoảng [100–200 từ]
+• Bao gồm: 1 câu mở đầu gây chú ý, nội dung chính, lời kêu gọi hành động (CTA)
+• Thêm 5–7 hashtag phù hợp cuối bài
+• Tông điệu gần gũi với đối tượng: [giới trẻ/phụ huynh/dân văn phòng]
+
+Ví dụ chủ đề: ra mắt sản phẩm mới, chia sẻ kinh nghiệm, động lực sáng thứ Hai.`
+      },
+      {
+        cat: 'writing', diff: 'medium',
+        title: 'Viết email chuyên nghiệp',
+        desc: 'Email công việc rõ ràng, lịch sự và đúng mục đích.',
+        tip: 'Cho dân văn phòng',
+        prompt: `Hãy viết một email [loại: xin việc / cảm ơn / phàn nàn / đề xuất hợp tác] gửi đến [đối tượng nhận: nhà tuyển dụng / khách hàng / đối tác].
+
+Thông tin cần có:
+• Mục đích email: [mô tả ngắn]
+• Điểm chính cần truyền đạt: [liệt kê 2–3 ý]
+• Giọng điệu: [trang trọng / thân thiện / trung lập]
+• Độ dài: [ngắn gọn dưới 150 từ / chi tiết 300 từ]
+
+Yêu cầu định dạng:
+- Dòng tiêu đề email rõ ràng
+- Lời chào phù hợp
+- Đoạn mở, nội dung chính, đoạn kết
+- Chữ ký chuyên nghiệp`
+      },
+      {
+        cat: 'writing', diff: 'hard',
+        title: 'Viết bài blog SEO chuyên sâu',
+        desc: 'Bài viết dài, chuẩn SEO, có cấu trúc và từ khóa tối ưu.',
+        tip: 'Tối ưu tìm kiếm Google',
+        prompt: `Viết một bài blog chuẩn SEO về chủ đề: "[CHỦ ĐỀ]"
+
+Thông tin:
+• Từ khóa chính: [từ khóa]
+• Từ khóa phụ: [từ khóa 2, từ khóa 3]
+• Đối tượng đọc: [người mới bắt đầu / chuyên gia / khách hàng tiềm năng]
+• Độ dài mục tiêu: [1000 / 1500 / 2000 từ]
+
+Yêu cầu cấu trúc:
+1. Tiêu đề H1 chứa từ khóa chính (dưới 60 ký tự)
+2. Meta description hấp dẫn (150–160 ký tự)
+3. Mở đầu: hook + nêu vấn đề
+4. Thân bài: [số] mục H2, mỗi mục có H3 con nếu cần
+5. Kết luận + CTA rõ ràng
+6. Đề xuất internal link (placeholder)
+
+Phong cách: [thực tế / hàn lâm / kể chuyện]`
+      },
+      {
+        cat: 'writing', diff: 'easy',
+        title: 'Viết kịch bản video ngắn (Reels/TikTok)',
+        desc: 'Script hấp dẫn cho video dưới 60 giây.',
+        tip: 'TikTok, YouTube Shorts',
+        prompt: `Viết kịch bản video ngắn (60 giây) cho nền tảng [TikTok / Reels / Shorts].
+
+Chủ đề video: [CHỦ ĐỀ]
+Mục tiêu: [giải trí / giáo dục / quảng cáo sản phẩm / truyền cảm hứng]
+
+Cấu trúc kịch bản:
+• Giây 0–3: Hook bằng câu hỏi hoặc sự thật gây bất ngờ
+• Giây 3–50: Nội dung chính (chia thành 3–5 điểm ngắn)
+• Giây 50–60: Kết thúc + CTA (like, follow, comment)
+
+Ghi chú thêm: đề xuất [nhạc nền phù hợp / hiệu ứng chuyển cảnh / text on screen] cho từng phần.`
+      },
+      {
+        cat: 'writing', diff: 'medium',
+        title: 'Viết mô tả sản phẩm bán hàng',
+        desc: 'Mô tả sản phẩm tập trung vào lợi ích, thuyết phục người mua.',
+        tip: 'Shopee, Lazada, Website',
+        prompt: `Viết mô tả sản phẩm bán hàng cho: [TÊN SẢN PHẨM]
+
+Thông tin sản phẩm:
+• Danh mục: [thời trang / điện tử / mỹ phẩm / thực phẩm...]
+• Đặc điểm nổi bật: [liệt kê 3–5 tính năng/thành phần]
+• Giá bán: [mức giá]
+• Đối tượng khách hàng: [nam/nữ, độ tuổi, nhu cầu]
+
+Yêu cầu:
+- Tiêu đề sản phẩm hấp dẫn (dưới 80 ký tự)
+- Đoạn mô tả ngắn (2–3 câu, tập trung lợi ích)
+- Danh sách tính năng (bullet points)
+- Lý do nên mua (3 điểm)
+- CTA kêu gọi đặt hàng ngay`
+      },
+
+      // ─── LẬP TRÌNH ──────────────────────────────────────────
+      {
+        cat: 'coding', diff: 'easy',
+        title: 'Giải thích đoạn code',
+        desc: 'Giải thích code rõ ràng, dễ hiểu kể cả với người mới.',
+        tip: 'Học code hiệu quả',
+        prompt: `Hãy giải thích đoạn code dưới đây theo cách đơn giản nhất:
+
+\`\`\`[ngôn ngữ lập trình]
+[DÁN CODE VÀO ĐÂY]
+\`\`\`
+
+Yêu cầu giải thích:
+1. Mục đích tổng thể của đoạn code này là gì?
+2. Giải thích từng dòng / từng khối quan trọng
+3. Các khái niệm/kỹ thuật được sử dụng
+4. Ví dụ kết quả đầu ra (input → output)
+5. Cách cải thiện hoặc tối ưu nếu có
+
+Giải thích như thể tôi là [người mới học / lập trình viên trung cấp].`
+      },
+      {
+        cat: 'coding', diff: 'medium',
+        title: 'Viết hàm / function hoàn chỉnh',
+        desc: 'Sinh code có xử lý lỗi, comment, và test case.',
+        tip: 'Có test case kèm theo',
+        prompt: `Viết một hàm [tên hàm] bằng ngôn ngữ [Python / JavaScript / TypeScript / Java / ...]:
+
+Mô tả chức năng: [MÔ TẢ RÕ RÀNG]
+
+Đầu vào (input):
+• [tham số 1]: [kiểu dữ liệu] – [mô tả]
+• [tham số 2]: [kiểu dữ liệu] – [mô tả]
+
+Đầu ra (output): [kiểu dữ liệu và ý nghĩa]
+
+Yêu cầu:
+✅ Xử lý các edge case: [liệt kê]
+✅ Thêm comment giải thích logic
+✅ Độ phức tạp thời gian mục tiêu: O(?)
+✅ Viết 3–5 test case (bao gồm case lỗi)
+✅ Ví dụ sử dụng thực tế`
+      },
+      {
+        cat: 'coding', diff: 'hard',
+        title: 'Review & tối ưu code',
+        desc: 'Phân tích code hiện có, tìm bug và đề xuất cải thiện.',
+        tip: 'Bug fix + performance',
+        prompt: `Hãy review và tối ưu đoạn code sau:
+
+\`\`\`[ngôn ngữ]
+[DÁN CODE VÀO ĐÂY]
+\`\`\`
+
+Ngữ cảnh: Code này dùng để [mô tả mục đích], hiện tại [vấn đề đang gặp: chạy chậm / có bug / khó đọc].
+
+Phân tích theo các tiêu chí:
+1. 🐛 **Bug & lỗi tiềm ẩn**: liệt kê cụ thể dòng nào, tại sao
+2. ⚡ **Hiệu năng**: bottleneck ở đâu, cách tối ưu
+3. 📖 **Khả năng đọc**: đặt tên biến, cấu trúc hàm
+4. 🔒 **Bảo mật** (nếu liên quan): SQL injection, XSS, v.v.
+5. ✨ **Code được tối ưu**: viết lại phần đã cải thiện
+
+Cuối cùng: tóm tắt điểm số chất lượng code (1–10) và ưu tiên fix cái gì trước.`
+      },
+      {
+        cat: 'coding', diff: 'medium',
+        title: 'Tạo API endpoint nhanh',
+        desc: 'Sinh code backend REST API đầy đủ với validation.',
+        tip: 'Node.js / Python Flask',
+        prompt: `Tạo một REST API endpoint bằng [Node.js Express / Python FastAPI / Python Flask / ...]:
+
+Endpoint: [POST/GET/PUT/DELETE] /[đường dẫn]
+Chức năng: [MÔ TẢ]
+
+Request body (nếu có):
+\`\`\`json
+{
+  "field1": "string",
+  "field2": "number"
+}
+\`\`\`
+
+Yêu cầu:
+• Validate input đầy đủ (kiểm tra thiếu field, sai kiểu dữ liệu)
+• Response format chuẩn: { success, data, message }
+• Xử lý lỗi với HTTP status codes phù hợp (400, 401, 404, 500)
+• Thêm middleware xác thực JWT nếu cần
+• Viết kèm ví dụ curl để test`
+      },
+      {
+        cat: 'coding', diff: 'easy',
+        title: 'Viết SQL query phức tạp',
+        desc: 'Sinh câu SQL với join, group by, subquery từ mô tả.',
+        tip: 'MySQL / PostgreSQL',
+        prompt: `Viết SQL query để [MÔ TẢ YÊU CẦU].
+
+Thông tin về database:
+• Bảng 1: [tên bảng] với các cột: [col1, col2, col3...]
+• Bảng 2: [tên bảng] với các cột: [col1, col2...]
+• Quan hệ: [tên bảng 1].[khóa] = [tên bảng 2].[khóa ngoại]
+
+Kết quả mong muốn:
+• Các cột cần hiển thị: [...]
+• Điều kiện lọc: [...]
+• Sắp xếp theo: [...]
+• Giới hạn: [n] kết quả
+
+Hãy:
+1. Viết query hoàn chỉnh (MySQL / PostgreSQL)
+2. Giải thích từng phần của query
+3. Gợi ý index để tối ưu hiệu năng`
+      },
+
+      // ─── HÌNH ẢNH & THIẾT KẾ ────────────────────────────────
+      {
+        cat: 'image', diff: 'easy',
+        title: 'Tạo ảnh nhân vật (Midjourney / DALL·E)',
+        desc: 'Prompt chi tiết để AI tạo nhân vật đúng ý muốn.',
+        tip: 'Midjourney, DALL·E 3',
+        prompt: `Tạo ảnh nhân vật với mô tả sau (dùng cho Midjourney / DALL·E 3):
+
+Nhân vật:
+• Giới tính & độ tuổi: [nữ 25 tuổi / nam trung niên...]
+• Ngoại hình: [mái tóc, màu mắt, vóc dáng, đặc điểm nổi bật]
+• Trang phục: [phong cách, màu sắc, chất liệu]
+• Biểu cảm: [vui vẻ / nghiêm nghị / bí ẩn / tự tin]
+• Tư thế: [đứng thẳng / ngồi / hành động]
+
+Bối cảnh & ánh sáng:
+• Nền: [thành phố / thiên nhiên / studio / trừu tượng]
+• Thời gian: [ban ngày / hoàng hôn / đêm]
+• Ánh sáng: [tự nhiên / cinematic / studio soft light]
+
+Phong cách nghệ thuật: [anime / realistic / oil painting / digital art / 3D render]
+Tỉ lệ: [1:1 / 16:9 / 9:16 / 3:4]
+Chất lượng: ultra detailed, 8K, professional photography`
+      },
+      {
+        cat: 'image', diff: 'medium',
+        title: 'Thiết kế logo thương hiệu',
+        desc: 'Prompt tạo logo độc đáo, phù hợp thương hiệu.',
+        tip: 'DALL·E 3, Ideogram',
+        prompt: `Tạo logo cho thương hiệu với các thông số sau:
+
+Thương hiệu:
+• Tên: [TÊN THƯƠNG HIỆU]
+• Ngành nghề: [công nghệ / ẩm thực / thời trang / giáo dục...]
+• Giá trị cốt lõi: [đổi mới / tin cậy / vui tươi / sang trọng]
+• Đối tượng khách hàng: [...]
+
+Yêu cầu logo:
+• Phong cách: [minimalist / vintage / modern / playful / luxury]
+• Màu sắc: [tối đa 3 màu, gợi ý hoặc cụ thể: #HEX]
+• Kiểu logo: [chỉ icon / chữ + icon / chỉ chữ (wordmark)]
+• Font chữ cảm hứng: [serif / sans-serif / handwritten]
+
+Xuất ra: nền trắng, vector-style, đơn giản khi in nhỏ
+Phong cách: flat design, professional logo design, clean lines`
+      },
+      {
+        cat: 'image', diff: 'hard',
+        title: 'Tạo concept art / poster phim',
+        desc: 'Ảnh nghệ thuật cinematic chất lượng cao.',
+        tip: 'Midjourney v6+',
+        prompt: `Tạo concept art / poster với phong cách cinematic cho:
+
+Chủ đề / câu chuyện: [MÔ TẢ NGẮN VỀ CẢNH HOẶC CÂU CHUYỆN]
+
+Thành phần hình ảnh:
+• Nhân vật chính: [mô tả chi tiết]
+• Bối cảnh: [địa điểm, thời đại, thời tiết]
+• Hành động đang diễn ra: [...]
+• Điểm nhấn cảm xúc: [căng thẳng / bi tráng / hy vọng / u ám]
+
+Phong cách & kỹ thuật:
+• Tham chiếu phim/họa sĩ: [Blade Runner 2049 / Studio Ghibli / Zack Snyder / ...]
+• Bảng màu: [warm golden / cold blue / monochrome / vibrant neon]
+• Ánh sáng: [god rays / rim light / chiaroscuro / neon glow]
+• Camera: [wide angle / low angle / bird's eye / close-up]
+
+Chất lượng: --ar 2:3, --q 2, --style raw, hyperrealistic, award-winning cinematography`
+      },
+      {
+        cat: 'image', diff: 'easy',
+        title: 'Tạo ảnh sản phẩm thương mại',
+        desc: 'Ảnh sản phẩm đẹp cho quảng cáo và bán hàng.',
+        tip: 'DALL·E 3, Adobe FF',
+        prompt: `Tạo ảnh sản phẩm thương mại chuyên nghiệp cho:
+
+Sản phẩm: [TÊN VÀ MÔ TẢ SẢN PHẨM]
+Màu sắc sản phẩm: [...]
+Kích thước & hình dạng: [...]
+
+Bối cảnh chụp:
+• Phong cách: [studio trắng / lifestyle / flat lay / 3D render]
+• Nền: [trắng thuần / gradient pastel / texture gỗ/đá / màu thương hiệu]
+• Prop đi kèm: [hoa / trái cây / vải / không có gì]
+• Góc chụp: [thẳng mặt trước / 45° / top-down / hero shot]
+
+Ánh sáng: soft studio lighting, no harsh shadows, product photography
+Chất lượng: commercial photography, 8K, sharp focus, professional`
+      },
+
+      // ─── KINH DOANH & PHÂN TÍCH ─────────────────────────────
+      {
+        cat: 'business', diff: 'medium',
+        title: 'Phân tích SWOT cho doanh nghiệp',
+        desc: 'Phân tích điểm mạnh, yếu, cơ hội và thách thức đầy đủ.',
+        tip: 'Chiến lược kinh doanh',
+        prompt: `Thực hiện phân tích SWOT toàn diện cho:
+
+Doanh nghiệp / Sản phẩm: [TÊN]
+Ngành: [lĩnh vực kinh doanh]
+Giai đoạn: [startup / đang phát triển / trưởng thành]
+Thị trường mục tiêu: [...]
+Đối thủ chính: [liệt kê 2–3 tên]
+
+Yêu cầu phân tích:
+• **Strengths (Điểm mạnh)**: 4–5 lợi thế cạnh tranh thực tế
+• **Weaknesses (Điểm yếu)**: 3–4 hạn chế cần cải thiện
+• **Opportunities (Cơ hội)**: 4–5 xu hướng thị trường có thể tận dụng
+• **Threats (Thách thức)**: 3–4 rủi ro từ bên ngoài
+
+Sau SWOT: đề xuất 3 chiến lược SO, ST, WO, WT cụ thể.
+Format kết quả: bảng + phân tích chi tiết từng mục.`
+      },
+      {
+        cat: 'business', diff: 'hard',
+        title: 'Xây dựng Business Plan 1 trang',
+        desc: 'Kế hoạch kinh doanh súc tích, đủ ý cho pitch hoặc nội bộ.',
+        tip: 'Dùng để pitch investor',
+        prompt: `Tạo Business Plan 1 trang (Lean Canvas) cho ý tưởng kinh doanh:
+
+Ý tưởng: [MÔ TẢ NGẮN]
+Giai đoạn hiện tại: [ý tưởng / MVP / có doanh thu đầu tiên]
+Nguồn vốn ban đầu: [tự có / tìm nhà đầu tư / vay ngân hàng]
+
+Điền đầy đủ các ô Lean Canvas:
+1. **Problem**: 3 vấn đề lớn nhất khách hàng đang gặp
+2. **Customer Segments**: nhóm khách hàng chính + early adopters
+3. **Unique Value Proposition**: câu 1 dòng tại sao chọn bạn
+4. **Solution**: 3 tính năng/dịch vụ cốt lõi
+5. **Channels**: kênh tiếp cận khách hàng
+6. **Revenue Streams**: mô hình kiếm tiền, dự kiến giá
+7. **Cost Structure**: chi phí cố định + biến đổi chính
+8. **Key Metrics**: 3 chỉ số quan trọng nhất cần theo dõi
+9. **Unfair Advantage**: lợi thế khó sao chép
+
+Thêm: đánh giá khả thi (1–10) và top 3 rủi ro cần chú ý.`
+      },
+      {
+        cat: 'business', diff: 'easy',
+        title: 'Phân tích dữ liệu từ bảng Excel',
+        desc: 'Yêu cầu AI đọc hiểu và phân tích dữ liệu dạng bảng.',
+        tip: 'Dùng với Claude / GPT-4',
+        prompt: `Phân tích bộ dữ liệu sau (tôi sẽ dán dữ liệu CSV hoặc mô tả bên dưới):
+
+[DÁN DỮ LIỆU HOẶC MÔ TẢ CẤU TRÚC]
+
+Yêu cầu phân tích:
+1. **Tổng quan**: số hàng, cột, kiểu dữ liệu từng cột
+2. **Thống kê mô tả**: min, max, trung bình, trung vị cho cột số
+3. **Xu hướng chính**: pattern hoặc insight nổi bật nhất
+4. **Bất thường**: giá trị outlier, dữ liệu bị thiếu, lỗi
+5. **So sánh**: [theo thời gian / theo nhóm / theo vùng]
+6. **Đề xuất**: 3 hành động cụ thể dựa trên dữ liệu
+
+Format: dùng bảng và bullet points. Giải thích đơn giản, không dùng thuật ngữ kỹ thuật phức tạp.`
+      },
+      {
+        cat: 'business', diff: 'medium',
+        title: 'Viết kế hoạch Marketing tháng',
+        desc: 'Lịch nội dung và chiến lược marketing chi tiết theo tuần.',
+        tip: 'Content calendar đầy đủ',
+        prompt: `Lập kế hoạch Marketing cho tháng [THÁNG/NĂM]:
+
+Thông tin thương hiệu:
+• Sản phẩm/Dịch vụ: [...]
+• Ngân sách Marketing: [...]
+• Kênh hiện có: [Facebook / Instagram / TikTok / Email / SEO]
+• Mục tiêu tháng này: [tăng 20% doanh thu / đạt 1000 followers / ra mắt sản phẩm]
+
+Kế hoạch cần bao gồm:
+1. **Chủ đề tháng** (content theme)
+2. **Lịch đăng bài** (ít nhất 3 bài/tuần cho mỗi kênh)
+3. **Ý tưởng nội dung** cho từng loại: giáo dục, giải trí, bán hàng, tương tác
+4. **Ngân sách chạy quảng cáo** phân bổ theo kênh
+5. **KPI cần đạt** và cách đo lường
+6. **Chiến dịch đặc biệt** (sale, sự kiện, v.v.)`
+      },
+
+      // ─── VIDEO ───────────────────────────────────────────────
+      {
+        cat: 'video', diff: 'easy',
+        title: 'Viết script YouTube dài (10–15 phút)',
+        desc: 'Kịch bản đầy đủ, hấp dẫn giữ người xem đến cuối.',
+        tip: 'YouTube, Podcast video',
+        prompt: `Viết kịch bản YouTube video dài [10/15] phút về chủ đề: [CHỦ ĐỀ]
+
+Kênh YouTube: [tên kênh, phong cách: giáo dục / giải trí / review / vlog]
+Đối tượng: [mô tả người xem lý tưởng]
+Mục tiêu video: [dạy kỹ năng / chia sẻ quan điểm / review sản phẩm / kể chuyện]
+
+Cấu trúc kịch bản:
+• **Hook (0–30s)**: câu hỏi hoặc sự thật gây tò mò ngay lập tức
+• **Giới thiệu (30s–2p)**: bản thân + những gì người xem sẽ học được
+• **Pattern interrupt** mỗi 2–3 phút (câu hỏi, hình ảnh mạnh, twist)
+• **Nội dung chính**: chia thành [3–5] phần rõ ràng, mỗi phần có ví dụ thực tế
+• **Kết luận (1p cuối)**: tóm tắt + CTA (subscribe, comment, video liên quan)
+
+Ghi chú kỹ thuật: [B-roll gợi ý / text on screen / nhạc nền / hiệu ứng]`
+      },
+      {
+        cat: 'video', diff: 'medium',
+        title: 'Tạo prompt video AI (Sora / Runway)',
+        desc: 'Prompt chuyên dụng để tạo video bằng AI text-to-video.',
+        tip: 'Sora, Runway Gen-3',
+        prompt: `Tạo prompt cho video AI (Sora / Runway ML / Kling AI):
+
+Cảnh video:
+• Nội dung chính: [MÔ TẢ CẢNH QUAY]
+• Nhân vật: [ai đang làm gì]
+• Bối cảnh: [địa điểm, thời gian, thời tiết]
+• Chuyển động camera: [static / slow pan left / zoom in / orbit / drone shot]
+• Thời lượng: [4s / 8s / 16s]
+
+Phong cách hình ảnh:
+• Màu sắc & tông: [warm / cold / desaturated / vibrant]
+• Ánh sáng: [golden hour / blue hour / studio / neon]
+• Phong cách quay: [cinematic 35mm / documentary / hyperrealistic / animation]
+
+Prompt Tiếng Anh hoàn chỉnh:
+[AI sẽ tạo prompt chuẩn bằng tiếng Anh sau khi nhận thông tin trên]
+
+Thêm: negative prompt (những gì KHÔNG muốn xuất hiện)`
+      },
+      {
+        cat: 'video', diff: 'hard',
+        title: 'Lên kịch bản quảng cáo TVC 30 giây',
+        desc: 'TVC chuyên nghiệp, đủ cảnh quay và lời thoại.',
+        tip: 'Quảng cáo TV / YouTube',
+        prompt: `Viết kịch bản TVC quảng cáo 30 giây cho:
+
+Sản phẩm/Thương hiệu: [TÊN]
+Thông điệp chính: [USP cần truyền đạt]
+Cảm xúc mục tiêu: [cảm động / hài hước / hứng khởi / sang trọng]
+Kênh phát sóng: [TV / YouTube pre-roll / mạng xã hội]
+
+Kịch bản theo format cột đôi:
+
+| THỜI GIAN | HÌNH ẢNH (VIDEO) | ÂM THANH (AUDIO) |
+|-----------|------------------|------------------|
+| 0–5s      | [cảnh mở đầu]   | [nhạc / tiếng động / VO] |
+| 5–10s     | ...              | ... |
+| 10–20s    | ...              | ... |
+| 20–25s    | ...              | ... |
+| 25–30s    | [logo + tagline] | [Jingle / VO kết] |
+
+Thêm: tagline thương hiệu, yêu cầu casting diễn viên, ghi chú đạo diễn.`
+      },
+      {
+        cat: 'video', diff: 'easy',
+        title: 'Viết tiêu đề & thumbnail cho YouTube',
+        desc: 'Tiêu đề tối ưu CTR và ý tưởng thumbnail hấp dẫn.',
+        tip: 'Tăng CTR YouTube',
+        prompt: `Tạo tiêu đề YouTube và ý tưởng thumbnail cho video về: [CHỦ ĐỀ VIDEO]
+
+Thông tin video:
+• Nội dung chính: [tóm tắt ngắn]
+• Kênh: [phong cách và đối tượng]
+• Từ khóa SEO quan trọng: [từ khóa 1, từ khóa 2]
+
+Yêu cầu:
+**10 Tiêu đề** theo các phong cách:
+- Câu hỏi gây tò mò (3 tiêu đề)
+- Con số cụ thể (2 tiêu đề: "7 cách...", "Tôi đã làm X trong Y ngày")
+- Cảm xúc mạnh (2 tiêu đề: sốc, bất ngờ, cảnh báo)
+- Lợi ích rõ ràng (3 tiêu đề: "Cách...", "Hướng dẫn...")
+
+**3 Ý tưởng Thumbnail**:
+Mỗi ý tưởng: mô tả hình nền, text overlay (tối đa 5 chữ), màu sắc, cảm xúc mặt người (nếu có).`
+      },
+
+      // ─── HỌC TẬP ────────────────────────────────────────────
+      {
+        cat: 'learning', diff: 'easy',
+        title: 'Giải thích khái niệm khó theo cách đơn giản',
+        desc: 'Học bất kỳ chủ đề nào qua ví dụ thực tế, dễ nhớ.',
+        tip: 'Học nhanh bất kỳ thứ gì',
+        prompt: `Giải thích khái niệm [TÊN KHÁI NIỆM] cho tôi theo cách đơn giản nhất.
+
+Tôi hiện tại biết về: [những gì bạn đã biết liên quan]
+Mục tiêu học: [hiểu cơ bản / ứng dụng thực tế / nắm sâu để thi / dạy lại cho người khác]
+Phong cách học: [ví dụ thực tế / câu chuyện / sơ đồ / bước từng bước]
+
+Cấu trúc giải thích:
+1. **Định nghĩa đơn giản** (1 câu, không dùng thuật ngữ)
+2. **Tại sao quan trọng** (2–3 câu)
+3. **Ví dụ thực tế** (2–3 ví dụ gần gũi với cuộc sống hàng ngày)
+4. **Ví dụ phản diện** (khi nào KHÔNG áp dụng)
+5. **Tóm tắt bằng 1 câu** dễ nhớ
+6. **3 câu hỏi tự kiểm tra** để đánh giá hiểu bài`
+      },
+      {
+        cat: 'learning', diff: 'medium',
+        title: 'Tạo lộ trình học kỹ năng mới',
+        desc: 'Roadmap chi tiết từ mới bắt đầu đến thành thạo.',
+        tip: 'Học từ 0 đến thành thạo',
+        prompt: `Tạo lộ trình học [KỸ NĂNG / LĨNH VỰC] từ đầu:
+
+Thông tin cá nhân:
+• Mức độ hiện tại: [hoàn toàn mới / biết cơ bản / trung cấp]
+• Thời gian có thể học: [X tiếng/ngày, X ngày/tuần]
+• Mục tiêu: [đủ để xin việc / thi chứng chỉ / làm dự án cá nhân]
+• Thời hạn: [X tháng / không giới hạn]
+
+Lộ trình cần bao gồm:
+**Giai đoạn 1 – Nền tảng** (tuần 1–?)
+- Khái niệm cốt lõi cần học
+- Tài nguyên học (miễn phí & trả phí, Tiếng Việt & Anh)
+- Dự án thực hành nhỏ
+
+**Giai đoạn 2 – Xây dựng kỹ năng** (tuần ?–?)
+**Giai đoạn 3 – Ứng dụng thực tế** (tuần ?–?)
+**Giai đoạn 4 – Nâng cao & chuyên sâu**
+
+Thêm: lịch học mẫu 1 tuần, cách đo lường tiến độ, sai lầm thường gặp.`
+      },
+      {
+        cat: 'learning', diff: 'medium',
+        title: 'Tạo bộ flashcard ôn thi',
+        desc: 'Tạo câu hỏi – đáp án để ôn tập hiệu quả.',
+        tip: 'Ôn thi / học thuộc',
+        prompt: `Tạo bộ [20/30/50] flashcard để ôn tập chủ đề: [CHỦ ĐỀ / MÔN HỌC]
+
+Phạm vi nội dung:
+• Chương / bài học: [liệt kê]
+• Dạng câu hỏi: [định nghĩa / so sánh / ứng dụng / tính toán]
+• Cấp độ: [cơ bản / nâng cao / thi cuối kỳ]
+
+Format mỗi flashcard:
+\`\`\`
+Thẻ [số]: [LOẠI: Định nghĩa / Công thức / Ứng dụng]
+❓ Câu hỏi: [câu hỏi rõ ràng, ngắn gọn]
+✅ Đáp án: [đáp án đầy đủ nhưng súc tích]
+💡 Ghi nhớ: [mẹo hoặc liên tưởng để nhớ lâu]
+\`\`\`
+
+Sắp xếp theo độ khó tăng dần. Cuối cùng thêm 5 câu hỏi tổng hợp liên kết nhiều khái niệm.`
+      },
+      {
+        cat: 'learning', diff: 'hard',
+        title: 'Tóm tắt & phân tích sách / tài liệu',
+        desc: 'Đọc hiểu và chiết xuất insight từ sách hoặc bài báo.',
+        tip: 'Đọc sách nhanh hơn',
+        prompt: `Phân tích và tóm tắt [tên sách / bài báo / tài liệu]:
+
+[DÁN NỘI DUNG HOẶC MÔ TẢ TÀI LIỆU]
+
+Yêu cầu phân tích:
+
+**1. Tóm tắt điều hành** (Executive Summary – 200 từ)
+Ý chính, lý luận cốt lõi, kết luận.
+
+**2. Luận điểm chính** (3–5 điểm)
+Mỗi luận điểm: tuyên bố + bằng chứng tác giả đưa ra + đánh giá của bạn (đồng ý/không đồng ý, tại sao).
+
+**3. Khái niệm / thuật ngữ quan trọng**
+Giải thích ngắn gọn từng khái niệm mới.
+
+**4. Ứng dụng thực tế**
+3 cách áp dụng nội dung này vào cuộc sống / công việc của tôi ([nghề nghiệp/lĩnh vực]).
+
+**5. Câu hỏi để suy ngẫm thêm**
+3–5 câu hỏi mở tác giả chưa trả lời hoặc còn tranh luận.`
+      },
+
+      // ─── DỰ ÁN IT ────────────────────────────────────────────
+      {
+        cat: 'itproject', diff: 'medium',
+        title: 'Lên ý tưởng & phạm vi dự án IT',
+        desc: 'Từ một ý tưởng mờ nhạt → tài liệu phạm vi dự án rõ ràng, đầy đủ.',
+        tip: 'Bước đầu tiên của mọi dự án',
+        prompt: `Tôi có ý tưởng xây dựng: [MÔ TẢ Ý TƯỞNG NGẮN GỌN]
+
+Hãy giúp tôi làm rõ và mở rộng ý tưởng này thành một tài liệu phạm vi dự án (Project Scope) đầy đủ:
+
+**1. Tóm tắt dự án**
+- Tên dự án (đề xuất 3 tên)
+- Mô tả một câu (elevator pitch)
+- Vấn đề đang giải quyết là gì?
+- Ai là người dùng mục tiêu?
+
+**2. Tính năng cốt lõi (MVP)**
+Liệt kê 5–8 tính năng thiết yếu nhất, ưu tiên theo mức độ quan trọng (Must have / Should have / Nice to have).
+
+**3. Tính năng mở rộng (Phase 2+)**
+3–5 tính năng có thể phát triển sau.
+
+**4. Đối tượng người dùng**
+- User persona chính (2–3 persona)
+- Hành trình người dùng (user journey) đơn giản cho tính năng cốt lõi
+
+**5. Các ràng buộc & rủi ro**
+- Kỹ thuật, pháp lý, tài chính, thời gian
+
+**6. Định nghĩa "Done"**
+Dự án được coi là hoàn thành khi nào?`
+      },
+      {
+        cat: 'itproject', diff: 'hard',
+        title: 'Thiết kế kiến trúc hệ thống',
+        desc: 'Lựa chọn tech stack, vẽ sơ đồ kiến trúc và giải thích từng thành phần.',
+        tip: 'System Design đầy đủ',
+        prompt: `Thiết kế kiến trúc hệ thống cho dự án: [TÊN & MÔ TẢ DỰ ÁN]
+
+Thông tin dự án:
+• Loại ứng dụng: [web app / mobile app / API service / SaaS / e-commerce / ...]
+• Quy mô dự kiến: [số người dùng đồng thời, lượng dữ liệu]
+• Ngân sách hạ tầng: [tự host / cloud, khoảng bao nhiêu/tháng]
+• Team: [số lập trình viên, kinh nghiệm]
+
+Yêu cầu thiết kế:
+
+**1. Tech Stack đề xuất** (với lý do chọn từng công nghệ)
+- Frontend: [framework, thư viện UI, state management]
+- Backend: [ngôn ngữ, framework, API style: REST/GraphQL/gRPC]
+- Database: [SQL / NoSQL / kết hợp, tại sao]
+- Cache: [Redis / Memcached / không cần]
+- File Storage: [S3 / Cloudinary / local]
+- Auth: [JWT / OAuth / Session]
+- Deployment: [Docker / Kubernetes / Vercel / Railway / ...]
+
+**2. Sơ đồ kiến trúc** (mô tả dạng text/ASCII)
+Vẽ sơ đồ các thành phần và luồng dữ liệu giữa chúng.
+
+**3. Database Schema** (các bảng/collection chính)
+Liệt kê entity quan trọng, quan hệ và các trường chính.
+
+**4. API Design** (các endpoint chính)
+| Method | Endpoint | Mô tả | Auth cần? |
+
+**5. Các quyết định kỹ thuật quan trọng**
+Trade-off của từng lựa chọn, cách scale khi cần.
+
+**6. Rủi ro kỹ thuật & cách giảm thiểu**`
+      },
+      {
+        cat: 'itproject', diff: 'medium',
+        title: 'Tạo User Stories & Task breakdown',
+        desc: 'Phân rã yêu cầu thành user stories chuẩn Agile, sẵn sàng đưa vào sprint.',
+        tip: 'Chuẩn Agile / Scrum',
+        prompt: `Hãy tạo User Stories và phân rã công việc cho tính năng: [TÊN TÍNH NĂNG]
+
+Bối cảnh:
+• Dự án: [tên dự án]
+• Người dùng liên quan: [vai trò người dùng]
+• Mục tiêu tính năng: [giải quyết vấn đề gì]
+
+**1. Epic**
+Viết 1 Epic Story tổng quát cho tính năng này.
+
+**2. User Stories** (ít nhất 5–8 stories)
+Format chuẩn cho mỗi story:
+\`\`\`
+Story #[số]: [Tên ngắn]
+Là [vai trò người dùng],
+Tôi muốn [hành động / tính năng],
+Để [lợi ích / mục đích].
+
+Acceptance Criteria:
+✅ Given [bối cảnh] When [hành động] Then [kết quả mong đợi]
+✅ ...
+
+Story Points: [1/2/3/5/8]
+Priority: [Critical / High / Medium / Low]
+\`\`\`
+
+**3. Task Breakdown** (cho story phức tạp nhất)
+Phân rã 1 story thành các task kỹ thuật cụ thể với estimate giờ.
+
+**4. Definition of Done**
+Checklist để xác nhận story hoàn thành.`
+      },
+      {
+        cat: 'itproject', diff: 'hard',
+        title: 'Lập kế hoạch sprint & roadmap',
+        desc: 'Tạo roadmap theo quý và lịch sprint chi tiết cho team phát triển.',
+        tip: 'Quản lý dự án Agile',
+        prompt: `Lập kế hoạch phát triển cho dự án: [TÊN DỰ ÁN]
+
+Thông tin:
+• Tổng thời gian dự án: [X tháng]
+• Team: [số dev, designer, QA, PM]
+• Sprint length: [1 tuần / 2 tuần]
+• Tính năng đã có (backlog): [liệt kê sơ bộ hoặc mô tả]
+• Deadline quan trọng: [ngày ra mắt, demo, v.v.]
+
+**1. Product Roadmap theo Quarter**
+| Quarter | Mục tiêu | Tính năng chính | Milestone |
+|---------|----------|-----------------|-----------|
+
+**2. Sprint Plan chi tiết** (4–6 sprint đầu)
+Mỗi sprint bao gồm:
+- Mục tiêu sprint (Sprint Goal)
+- Danh sách story / task đưa vào
+- Estimate tổng (story points hoặc giờ)
+- Rủi ro sprint
+
+**3. Phân công vai trò**
+Ai làm gì trong từng giai đoạn, cách phối hợp Frontend ↔ Backend ↔ Design.
+
+**4. Quy trình làm việc**
+Git branching strategy, code review, deploy pipeline, meeting cadence.
+
+**5. Rủi ro dự án & kế hoạch dự phòng**
+Top 5 rủi ro + mitigation plan.`
+      },
+      {
+        cat: 'itproject', diff: 'easy',
+        title: 'Viết README & tài liệu kỹ thuật',
+        desc: 'README chuyên nghiệp, đầy đủ hướng dẫn cài đặt và sử dụng dự án.',
+        tip: 'GitHub / GitLab README',
+        prompt: `Viết tài liệu README.md chuyên nghiệp cho dự án:
+
+Thông tin dự án:
+• Tên: [TÊN DỰ ÁN]
+• Mô tả: [một đoạn ngắn giới thiệu]
+• Tech stack: [các công nghệ sử dụng]
+• Trạng thái: [đang phát triển / production / archived]
+
+README cần có đầy đủ các mục:
+
+**1. Badges** (build status, license, version)
+**2. Giới thiệu** — dự án làm gì, giải quyết vấn đề gì
+**3. Demo / Screenshot** — placeholder cho ảnh demo
+**4. Tính năng nổi bật** — bullet list ngắn gọn
+**5. Yêu cầu hệ thống** — prerequisites trước khi cài
+**6. Hướng dẫn cài đặt** — step-by-step với code block
+\`\`\`bash
+# Các lệnh cài đặt
+\`\`\`
+**7. Cấu hình** — biến môi trường (.env), config file
+**8. Cách chạy** — dev mode và production mode
+**9. Cấu trúc thư mục** — giải thích từng folder chính
+**10. API Reference** — nếu có (tóm tắt endpoint)
+**11. Đóng góp** — hướng dẫn tạo PR
+**12. License & tác giả**`
+      },
+      {
+        cat: 'itproject', diff: 'hard',
+        title: 'Tạo toàn bộ dự án từ đầu (Full Project Bootstrap)',
+        desc: 'Prompt mạnh nhất — AI sinh ra toàn bộ cấu trúc, code khởi tạo và hướng dẫn từ A→Z.',
+        tip: 'Prompt tổng hợp mạnh nhất',
+        prompt: `Tôi muốn xây dựng dự án: [MÔ TẢ CHI TIẾT Ý TƯỞNG]
+
+Hãy giúp tôi bootstrap toàn bộ dự án này từ đầu theo thứ tự:
+
+━━━ BƯỚC 1: PHÂN TÍCH & LÊN KẾ HOẠCH ━━━
+• Xác nhận lại yêu cầu và đặt câu hỏi làm rõ (nếu cần)
+• Đề xuất tên dự án + mô tả 1 câu
+• Xác định MVP scope: tính năng nào làm trước, tính năng nào bỏ qua
+
+━━━ BƯỚC 2: TECH STACK ━━━
+• Đề xuất công nghệ phù hợp nhất với yêu cầu và trình độ của tôi: [người mới / junior / mid-level]
+• Giải thích ngắn lý do chọn từng thứ
+• So sánh với 1 lựa chọn thay thế
+
+━━━ BƯỚC 3: CẤU TRÚC DỰ ÁN ━━━
+• Vẽ cấu trúc thư mục đầy đủ
+• Giải thích vai trò từng folder/file quan trọng
+
+━━━ BƯỚC 4: KHỞI TẠO CODE ━━━
+Tạo code cho các file cốt lõi:
+• File cấu hình (package.json / requirements.txt / ...)
+• Entry point chính
+• Database schema / models
+• 2–3 route/controller/component quan trọng nhất
+• File .env.example
+
+━━━ BƯỚC 5: HƯỚNG DẪN CHẠY ━━━
+Lệnh từng bước để chạy được dự án trên máy local.
+
+━━━ BƯỚC 6: BƯỚC TIẾP THEO ━━━
+Gợi ý thứ tự tiếp tục phát triển sau khi đã có nền tảng.
+
+Thông tin bổ sung về tôi:
+• Ngôn ngữ/framework quen thuộc: [...]
+• Môi trường: [Windows / Mac / Linux]
+• Mục tiêu: [học tập / sản phẩm thực / portfolio]`
+      },
+    ];
+
+    // ============================================================
+    // RENDER
+    // ============================================================
+    const getCat = id => CATEGORIES.find(c => c.id === id);
+
+    let activeTab = 'all';
+    let searchQuery = '';
+
+    function renderTabs() {
+      const container = document.getElementById('tabs');
+      container.innerHTML = CATEGORIES.map(cat => `
+    <button class="tab-btn ${cat.id === activeTab ? 'active' : ''}"
+      style="${cat.id === activeTab ? `background:${cat.gradient};` : ''}"
+      onclick="setTab('${cat.id}')">
+      <span class="tab-icon">${cat.icon}</span>
+      ${cat.label}
+    </button>
+  `).join('');
+    }
+
+    function getFilteredPrompts() {
+      return PROMPTS.filter(p => {
+        const matchCat = activeTab === 'all' || p.cat === activeTab;
+        const q = searchQuery.toLowerCase();
+        const matchSearch = !q ||
+          p.title.toLowerCase().includes(q) ||
+          p.desc.toLowerCase().includes(q) ||
+          p.prompt.toLowerCase().includes(q);
+        return matchCat && matchSearch;
+      });
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('cardGrid');
+      const filtered = getFilteredPrompts();
+
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="empty"><span>🔍</span>Không tìm thấy prompt phù hợp. Thử từ khóa khác!</div>`;
+        return;
+      }
+
+      // Store prompts for copy access
+      window._promptData = filtered;
+
+      grid.innerHTML = filtered.map((p, i) => {
+        const cat = getCat(p.cat);
+        const diffClass = p.diff === 'easy' ? 'diff-easy' : p.diff === 'medium' ? 'diff-medium' : 'diff-hard';
+        const diffLabel = p.diff === 'easy' ? 'Dễ dùng' : p.diff === 'medium' ? 'Trung bình' : 'Nâng cao';
+        const safePrompt = p.prompt.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return `
+    <div class="card" style="--c-glow:${cat.glow}; --c-accent:${cat.color}; animation-delay:${i * 0.05}s">
+      <div class="card-top">
+        <div class="card-icon" style="background:${cat.gradient}20; color:${cat.color}">${cat.icon}</div>
+        <span class="card-difficulty ${diffClass}">${diffLabel}</span>
+      </div>
+      <h3>${p.title}</h3>
+      <p class="card-desc">${p.desc}</p>
+      <div class="prompt-box" id="pb_${i}">
+        ${safePrompt}
+        <div class="prompt-fade"></div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-copy" style="background:${cat.gradient}" id="bc_${i}" data-idx="${i}" onclick="copyPrompt(${i})">📋 Sao chép</button>
+        <button class="btn-expand" data-idx="${i}" onclick="toggleExpand(${i})">Xem đầy đủ</button>
+        <span class="tip-tag">${p.tip}</span>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    function setTab(id) {
+      activeTab = id;
+      renderTabs();
+      renderCards();
+    }
+
+    function copyPrompt(i) {
+      const text = window._promptData[i].prompt;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('bc_' + i);
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✅ Đã sao chép!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      }).catch(() => {
+        // fallback for browsers that block clipboard
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const btn = document.getElementById('bc_' + i);
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✅ Đã sao chép!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+
+    function toggleExpand(i) {
+      const pb = document.getElementById('pb_' + i);
+      if (!pb) return;
+      const expanded = pb.classList.toggle('expanded');
+      // Find the fade overlay inside and toggle it
+      const fade = pb.querySelector('.prompt-fade');
+      if (fade) fade.style.display = expanded ? 'none' : '';
+      // Find expand button via data-idx attribute
+      const btn = document.querySelector('.btn-expand[data-idx="' + i + '"]');
+      if (btn) btn.textContent = expanded ? 'Thu gọn' : 'Xem đầy đủ';
+    }
+
+    // Search
+    document.getElementById('searchInput').addEventListener('input', e => {
+      searchQuery = e.target.value;
+      renderCards();
+    });
+
+    // Init
+    renderTabs();
+    renderCards();
+
+    // ── DRAG-TO-SCROLL cho thanh tab ─────────────────────────
+    (function () {
+      const slider = document.getElementById('tabs');
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+      let hasDragged = false;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        hasDragged = false;
+        slider.style.cursor = 'grabbing';
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+        e.preventDefault();
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.style.cursor = '';
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const x = e.pageX - slider.offsetLeft;
+        const walk = x - startX;
+        if (Math.abs(walk) > 5) hasDragged = true;
+        slider.scrollLeft = scrollLeft - walk;
+      });
+
+      // Chặn click khi đã kéo (để không trigger setTab)
+      slider.addEventListener('click', (e) => {
+        if (hasDragged) {
+          e.stopImmediatePropagation();
+          hasDragged = false;
+        }
+      }, true);
+
+      // Touch support
+      let touchStartX;
+      let touchScrollLeft;
+      slider.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].pageX - slider.offsetLeft;
+        touchScrollLeft = slider.scrollLeft;
+      }, { passive: true });
+
+      slider.addEventListener('touchmove', (e) => {
+        const x = e.touches[0].pageX - slider.offsetLeft;
+        slider.scrollLeft = touchScrollLeft - (x - touchStartX);
+      }, { passive: true });
+    })();
+  </script>
+</body>
+
+</html>
